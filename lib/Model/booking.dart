@@ -1,38 +1,44 @@
 final String tableBooking = 'Bookings';
 //table fields
 class BookingFields{
-  static final String userId = 'userId';
+  static final String userEmail = 'userEmail';
   static final String stadiumSlot = 'stadiumSlot';
+  static final String bookingId = 'bookingId';
 
   static final List<String> values = [
-    userId, stadiumSlot
+    userEmail, stadiumSlot, bookingId
   ];
 
 }
 
 class Booking {
   final int? stadiumSlot;
-  final int? userId;
+  final String? userEmail;
+  final int? bookingId;
 
-  Booking({this.stadiumSlot,  this.userId} );
+  Booking( {this.stadiumSlot,  this.userEmail, this.bookingId,} );
 
   Booking copy({
     int? stadiumSlot,
-    int? userId,
+    String? userEmail,
+    int? bookingId,
   })=> Booking(
-      userId: userId?? this.userId,
+      userEmail: userEmail?? this.userEmail,
       stadiumSlot: stadiumSlot?? this.stadiumSlot,
+      bookingId: bookingId?? this.bookingId
   );
 
   //create message object from jscon
   static Booking fromJson(Map<String, Object?> json)=> Booking(
-    userId: json[BookingFields.userId] as int?,
+      userEmail: json[BookingFields.userEmail] as String?,
     stadiumSlot: json[BookingFields.stadiumSlot] as int?,
+    bookingId: json[BookingFields.bookingId] as int?
   );
 
   //creates from fields a map
   Map<String, Object?> toJson() => {
-    BookingFields.userId: userId,
+    BookingFields.userEmail: userEmail,
     BookingFields.stadiumSlot: stadiumSlot,
+    BookingFields.bookingId: bookingId
   };
 }

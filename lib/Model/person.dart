@@ -27,7 +27,7 @@ class Person {
   final String? imageURL;
   final int? userId;
 
-  Person({this.fName, this.lName, this.username, this.email, this.password, this.imageURL, this.userId} );
+  Person({required this.fName, required this.lName, required this.username, required this.email, required this.password, this.imageURL, this.userId} );
 
   Person copy({
     String? fName,

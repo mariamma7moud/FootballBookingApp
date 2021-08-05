@@ -1,7 +1,9 @@
 
 import 'package:flutter/material.dart';
+import 'package:football_booking_app/DataBase/footballDB.dart';
 import 'package:football_booking_app/View/registerPage.dart';
 import 'package:football_booking_app/View/startPage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -25,8 +27,8 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  final TextEditingController _password = TextEditingController();
-  final TextEditingController _email = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
@@ -65,7 +67,7 @@ class _LoginState extends State<Login> {
                               border: OutlineInputBorder(
                                   borderRadius: BorderRadius.all(Radius.circular(32.0)))
                           ),
-                          controller: _email,
+                          controller: _emailController,
                           validator: (value) {
                             if (value!.contains('*') || value.contains('#') || value.isEmpty || ! value.contains('@')) {
                               return 'Please enter a valid email';
@@ -90,7 +92,7 @@ class _LoginState extends State<Login> {
                               border: OutlineInputBorder(
                                   borderRadius: BorderRadius.all(Radius.circular(32.0)))
                           ),
-                          controller: _password,
+                          controller: _passwordController,
                           validator: (value) {
                             if (value!.length < 6 || value.isEmpty ) {
                               return 'Password has to be at least six characters';
@@ -111,14 +113,30 @@ class _LoginState extends State<Login> {
                           primary: Colors.amber,
                           padding: EdgeInsets.symmetric( horizontal: 60)
                       ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          new MaterialPageRoute(builder: (context) => Start()),
-                        );
+                      onPressed: () async {
+                        try{
+                          bool isValid= await validatePerson(_emailController.text, _passwordController.text);
+                          if(isValid){
+                            Navigator.push(
+                              context,
+                              new MaterialPageRoute(builder: (context) => Start()),
+                            );
+                            print('User is validated');
+                            saveData(_emailController.text);
+                          }else{
+                            final snackBar = SnackBar(
+                                content: Text('Error: email or password incorrect'),
+                                //backgroundColor: Colors.red,
+                                //elevation: 5.0,
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                            _emailController.clear();
+                            _passwordController.clear();
 
-                        //here check creditentials and then redirect if correct
-                        //otherwise empty the textfields and snackbar an error message
+                          }
+                        }catch(e){
+                          print('$e');
+                        };
                       },
                       child: Text('Login'),
 
@@ -150,4 +168,18 @@ class _LoginState extends State<Login> {
       ),
     );
   }
+
+  Future<void> saveData(String email) async {
+    //SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('email', email);
+    //print('${prefs.get('password')}');
+  }
+
+  Future<bool>validatePerson(String email, String password) async {
+    return await FootballDatabase.instance.validatePerson(email, password);
+
+  }
+
+
 }

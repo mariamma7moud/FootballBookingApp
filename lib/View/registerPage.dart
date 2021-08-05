@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:football_booking_app/DataBase/footballDB.dart';
+import 'package:football_booking_app/Model/person.dart';
 import 'package:football_booking_app/View/startPage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);
@@ -14,6 +17,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _fName = TextEditingController();
   final TextEditingController _lName = TextEditingController();
   final TextEditingController _userName = TextEditingController();
+  final TextEditingController _imageURL = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -42,6 +46,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     CreateTextField("Please choose a username", Icon(Icons.supervised_user_circle), _userName, false),
                     CreateTextField("Please enter your email", Icon(Icons.email), _email, false),
                     CreateTextField("Please enter your password", Icon(Icons.vpn_key), _password, true),
+                    CreateTextField("ass image URL", Icon(Icons.image), _imageURL, false),
                   ],
                 ),
 
@@ -54,12 +59,12 @@ class _RegisterPageState extends State<RegisterPage> {
                         padding: EdgeInsets.symmetric( horizontal: 60),
                       ),
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          new MaterialPageRoute(builder: (context) => Start()),
-                        );
-
-                        //enter the data in database
+                          createPerson(_fName.text, _lName.text, _userName.text, _email.text, _password.text, _imageURL.text);
+                          Navigator.push(
+                            context,
+                            new MaterialPageRoute(builder: (context) => Start()),
+                          );
+                          saveData(_email.text);
                       },
                       child: Text('Sign Up'),
                     ),
@@ -98,5 +103,37 @@ class _RegisterPageState extends State<RegisterPage> {
         ),
       ),
     );
+  }
+  Future<void> saveData(String email) async {
+    //SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('email', email);
+    //print('${prefs.get('password')}');
+  }
+
+  Future<void>createPerson(String fname, String lName, String userName, String email, String password, String imageURL) async {
+    final person;
+    if(imageURL == null){
+      person = Person(
+          fName: fname,
+          lName: lName,
+          username: userName,
+          email: email,
+          password: password,
+          imageURL: "https://www.rd.com/wp-content/uploads/2017/09/01-shutterstock_476340928-Irina-Bg.jpg"
+      );
+
+    }else{
+      person = Person(
+          fName: fname,
+          lName: lName,
+          username: userName,
+          email: email,
+          password: password,
+          imageURL: imageURL
+      );
+    }
+    return await FootballDatabase.instance.createPerson(person);
+
   }
 }
